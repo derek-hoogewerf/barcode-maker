@@ -1,20 +1,18 @@
 #!/usr/bin/perl 
 use warnings;
 use strict;
-use GD::Barcode;
-use GD::Barcode::Code39;
-binmode(STDOUT);
-print "Content-Type: image/png\n\n";
-print GD::Barcode::Code39->new('*CODE39IMG*')->plot->png;
 
-my $oGdBar = GD::Barcode::Code39->new('*123456789;*');
-die $GD::Barcode::Code39::errStr unless($oGdBar);     #Invalid Characters
+my $param = &convert();
+my @cmd = ('/usr/bin/python3');
+push @cmd, '/home/derek/Documents/GH/barcode/barcode_gen.py';
 
-# &convert;
+system(@cmd, $param);
 
 # to convert full ASCII into Code 39
 sub convert {
-   my $ascii_str = "Monkey 123";
+   print "Enter barcode string:\n";
+   my $ascii_str = <>;
+   chomp($ascii_str);
    my ($char, $code39);
    $code39 = "";
    foreach $char (split('', $ascii_str)) 
@@ -101,6 +99,19 @@ sub convert {
          # Invalid Character: Do Not Include
       }
    }
-   print "$code39";
-   
+   # print "$code39";
+   return $code39;
 }
+
+=python inline code
+use Inline Python => <<'END_OF_PYTHON_CODE';
+from barcode import Code39
+
+from barcode.writer import ImageWriter
+my_code = Code39({$barcode}, writer=ImageWriter())
+
+my_code.save("new_code1")
+
+ 
+END_OF_PYTHON_CODE
+=cut
